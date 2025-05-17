@@ -7,3 +7,4 @@ build/
 .env.test.local
 .roomodes
 .DS_Store
+.vscode
