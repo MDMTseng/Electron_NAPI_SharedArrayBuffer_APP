@@ -38,9 +38,9 @@ init_build() {
     fi
     
     # Always remove build directory to ensure clean cmake run
-    echo "Cleaning build directory..."
-    rm -rf build
-    mkdir -p build
+    # echo "Cleaning build directory..."
+    # rm -rf build
+    # mkdir -p build
     
     echo "Running cmake..."
     cd build || exit 1

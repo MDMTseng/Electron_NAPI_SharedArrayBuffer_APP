@@ -6,7 +6,6 @@ echo "Starting APP build process..."
 # --- Configuration ---
 # Script is now inside APP/, paths are relative to APP/
 APP_DIR=$(pwd) # Assume script is run from APP/ directory
-PROJECT_ROOT="${APP_DIR}/.." # Path to the project root
 FRONTEND_DIR="frontend"
 BACKEND_DIR="backend"
 DIST_DIR="dist" # Output directory relative to APP/
@@ -33,13 +32,10 @@ cp -R "${FRONTEND_DIR}/dist/"* "${DIST_DIR}/frontend/"
 
 # --- Build Backend Plugin ---
 echo "Building backend plugin (${BACKEND_DIR})..."
-# Ensure build script is executable
-chmod +x "${BACKEND_DIR}/build.sh"
 
-# Execute build script directly (assuming npm not needed just for this)
 cd "${APP_DIR}/${BACKEND_DIR}"
 echo "Running backend build script..."
-./build.sh
+sh build.sh
 cd "${APP_DIR}" # Go back to APP dir
 
 echo "Copying backend plugin artifacts to ${DIST_DIR}/backend..."
@@ -88,20 +84,17 @@ else
     echo "Warning: Python IPC script ${PYTHON_SCRIPT} not found in ${BACKEND_DIR}"
 fi
 
-# --- Build Native Addon (NEW) ---
-echo "Building native addon..."
-cd "${PROJECT_ROOT}" # Go up to project root
-node-gyp rebuild
-cd "${APP_DIR}" # Go back to APP dir
-
-echo "Copying native addon artifact to ${DIST_DIR}/native..."
-NATIVE_BUILD_DIR="${PROJECT_ROOT}/build/Release" # Build output is in project root's build dir
+# --- Use Prebuilt Native Addon (MODIFIED) ---
+echo "Using prebuilt native addon..."
+OS_PLATFORM="$(uname -s)"
+PROC_PLATFORM="$(uname -m)"
+PREBUILT_NAPI_DIR="${APP_DIR}/electron_napi_bin/${OS_PLATFORM}-${PROC_PLATFORM}"
 NATIVE_TARGET_DIR="${DIST_DIR}/native"
-if [[ -f "${NATIVE_BUILD_DIR}/addon.node" ]]; then
-    cp "${NATIVE_BUILD_DIR}/addon.node" "${NATIVE_TARGET_DIR}/"
-    echo "Copied addon.node"
+if [[ -f "${PREBUILT_NAPI_DIR}/addon.node" ]]; then
+    cp "${PREBUILT_NAPI_DIR}/addon.node" "${NATIVE_TARGET_DIR}/"
+    echo "Copied prebuilt addon.node"
 else
-    echo "Error: Native addon (addon.node) not found in ${NATIVE_BUILD_DIR}"
+    echo "Error: Prebuilt native addon (addon.node) not found in ${PREBUILT_NAPI_DIR}"
     exit 1
 fi
 
