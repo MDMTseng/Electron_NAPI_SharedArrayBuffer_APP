@@ -14,5 +14,11 @@ fi
 
 cp -R build/lib/* $export_dist_folder_path/
 cp python_bidirectional_ipc_script.py $export_dist_folder_path/
+
+
+mkdir -p "$export_dist_folder_path/plugins"
+find build/plugins -type f \( -name "*.dylib" -o -name "*.so" -o -name "*.dll" \) -exec cp {} $export_dist_folder_path/plugins/ \;
+
+
 echo "DONE!"
 
